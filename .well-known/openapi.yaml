@@ -1,196 +1,95 @@
 openapi: 3.0.2
 info:
-  title: Retrieval Plugin API
-  description: A retrieval API for querying and filtering documents based on natural language queries and metadata
-  version: 1.0.0
-  servers:
-    - url: https://your-app-url.com
+  title: NBA Basketball Knowledge API
+  description: This API will get current and historical stats for NBA players and games.
+  version: 'v1'
+servers:
+  - url: https://oyster-app-jlie2.ondigitalocean.app
 paths:
-  /query:
-    post:
-      summary: Query
-      description: Accepts search query objects array each with query and optional filter. Break down complex questions into sub-questions. Refine results by criteria, e.g. time / source, don't do this often. Split queries if ResponseTooLargeError occurs.
-      operationId: query_query_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/QueryRequest"
-        required: true
+  /team_ID_by_Name:
+    get:
+      operationId: getTeamID
+      summary: Retrieves teams ID by team name for the current season.
       responses:
         "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/QueryResponse"
-        "422":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-      security:
-        - HTTPBearer: []
-components:
-  schemas:
-    DocumentChunkMetadata:
-      title: DocumentChunkMetadata
-      type: object
-      properties:
-        source:
-          $ref: "#/components/schemas/Source"
-        source_id:
-          title: Source Id
-          type: string
-        url:
-          title: Url
-          type: string
-        created_at:
-          title: Created At
-          type: string
-        author:
-          title: Author
-          type: string
-        document_id:
-          title: Document Id
-          type: string
-    DocumentChunkWithScore:
-      title: DocumentChunkWithScore
-      required:
-        - text
-        - metadata
-        - score
-      type: object
-      properties:
-        id:
-          title: Id
-          type: string
-        text:
-          title: Text
-          type: string
-        metadata:
-          $ref: "#/components/schemas/DocumentChunkMetadata"
-        embedding:
-          title: Embedding
-          type: array
-          items:
-            type: number
-        score:
-          title: Score
-          type: number
-    DocumentMetadataFilter:
-      title: DocumentMetadataFilter
-      type: object
-      properties:
-        document_id:
-          title: Document Id
-          type: string
-        source:
-          $ref: "#/components/schemas/Source"
-        source_id:
-          title: Source Id
-          type: string
-        author:
-          title: Author
-          type: string
-        start_date:
-          title: Start Date
-          type: string
-        end_date:
-          title: End Date
-          type: string
-    HTTPValidationError:
-      title: HTTPValidationError
-      type: object
-      properties:
-        detail:
-          title: Detail
-          type: array
-          items:
-            $ref: "#/components/schemas/ValidationError"
-    Query:
-      title: Query
-      required:
-        - query
-      type: object
-      properties:
-        query:
-          title: Query
-          type: string
-        filter:
-          $ref: "#/components/schemas/DocumentMetadataFilter"
-        top_k:
-          title: Top K
-          type: integer
-          default: 3
-    QueryRequest:
-      title: QueryRequest
-      required:
-        - queries
-      type: object
-      properties:
-        queries:
-          title: Queries
-          type: array
-          items:
-            $ref: "#/components/schemas/Query"
-    QueryResponse:
-      title: QueryResponse
-      required:
-        - results
-      type: object
-      properties:
-        results:
-          title: Results
-          type: array
-          items:
-            $ref: "#/components/schemas/QueryResult"
-    QueryResult:
-      title: QueryResult
-      required:
-        - query
-        - results
-      type: object
-      properties:
-        query:
-          title: Query
-          type: string
-        results:
-          title: Results
-          type: array
-          items:
-            $ref: "#/components/schemas/DocumentChunkWithScore"
-    Source:
-      title: Source
-      enum:
-        - email
-        - file
-        - chat
-      type: string
-      description: An enumeration.
-    ValidationError:
-      title: ValidationError
-      required:
-        - loc
-        - msg
-        - type
-      type: object
-      properties:
-        loc:
-          title: Location
-          type: array
-          items:
-            anyOf:
-              - type: string
-              - type: integer
-        msg:
-          title: Message
-          type: string
-        type:
-          title: Error Type
-          type: string
-  securitySchemes:
-    HTTPBearer:
-      type: http
-      scheme: bearer
+          description: OK
+  /games:
+    get:
+      operationId: getGames
+      summary: Retrieves the games for a specific date in the NBA and their associated scores and results. To get stats about a specific player in a game, use the getPlayersStatsByDate operationID.
+      parameters:
+      - in: query
+        name: day
+        schema:
+            type: string
+        description: Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
+      responses:
+        "200":
+          description: OK  
+  /year_standings:
+    get:
+      operationId: getStandings
+      summary: Retrieves the standings in the NBA relative to a specific season. Ensure a year is determined, otherwise the API will return an error.
+      parameters:
+      - in: query
+        name: year
+        schema:
+            type: string
+        description: Filter by seasons. Seasons are represented by the year they began. For example, 2018 represents season 2018-2019.
+      responses:
+        "200":
+          description: OK  
+  /allstar_roster:
+    get:
+      operationId: getAllstarRosters
+      summary: Retrieves the all-star game rosters in the NBA for a specific year.
+      parameters:
+      - in: query
+        name: year
+        schema:
+            type: string
+        description: Filter by seasons. Seasons are represented by the year they began. For example, 2018 represents season 2018-2019.
+      - in: query
+        name: message
+        schema:
+            type: string
+        description: Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
+      responses:
+        "200":
+          description: OK
+  /current_roster_list:
+    get:
+      operationId: getCurrentRosterList
+      summary: Retrieves the current roster and basic information for all players on a specific team. This is specific to only one team per request.
+      parameters:
+      - in: query
+        name: team_abv
+        schema:
+            type: string
+        description: Return the team abreviation for the specific NBA team. For example the brooklyn nets are BKN, the Toronto Raptors are TOR.
+      responses:
+        "200":
+          description: OK
+  /player_stats_by_date:
+    get:
+      operationId: getPlayersStatsByDate
+      summary: Use this tool if the user asks for a players specific stats on a specific date. It gets stats of a specific player in a game. If no player is returned, assume the player did not play in a game that day. Use the getGames operationID for specific games as a whole.
+      parameters:
+      - in: query
+        name: day
+        schema:
+            type: string
+        description: Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
+      - in: query
+        name: player_name
+        schema:
+            type: string
+        description: The full name of the player, no short forms or nick names, only full names. For example Steph Curry must be Stephen Curry.
+      - in: query
+        name: player_id
+        schema:
+            type: string
+        description: The player ID about the specific player in the request information.
+      responses:
+        "200":
+          description: OK

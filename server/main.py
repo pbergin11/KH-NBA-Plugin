@@ -4,6 +4,14 @@ import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Depends, Body, UploadFile
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
+import datetime
+import json
+import openai
+from openai.embeddings_utils import get_embedding
+import pinecone
+import requests
+import numpy as np
+
 
 from models.api import (
     DeleteRequest,
@@ -43,107 +51,198 @@ sub_app = FastAPI(
 app.mount("/sub", sub_app)
 
 
-@app.post(
-    "/upsert-file",
-    response_model=UpsertResponse,
-)
-async def upsert_file(
-    file: UploadFile = File(...),
-    metadata: Optional[str] = Form(None),
-):
-    try:
-        metadata_obj = (
-            DocumentMetadata.parse_raw(metadata)
-            if metadata
-            else DocumentMetadata(source=Source.file)
-        )
-    except:
-        metadata_obj = DocumentMetadata(source=Source.file)
+def filter_game_data(game):
+    return {
+        "GameEndDateTime": game["GameEndDateTime"],
+        "GameID": game["GameID"],
+        "Season": game["Season"],
+        "SeasonType": game["SeasonType"],
+        "Status": game["Status"],
+        "Day": game["Day"],
+        "DateTime": game["DateTime"],
+        "AwayTeam": game["AwayTeam"],
+        "HomeTeam": game["HomeTeam"],
+        "AwayTeamID": game["AwayTeamID"],
+        "HomeTeamID": game["HomeTeamID"],
+        "StadiumID": game["StadiumID"],
+        "AwayTeamScore": game["AwayTeamScore"],
+        "HomeTeamScore": game["HomeTeamScore"],
+        "Updated": game["Updated"],
+        "IsClosed": game["IsClosed"],
+        "NeutralVenue": game["NeutralVenue"],
+        "DateTimeUTC": game["DateTimeUTC"],
+    }
 
-    document = await get_document_from_file(file, metadata_obj)
-
-    try:
-        ids = await datastore.upsert([document])
-        return UpsertResponse(ids=ids)
-    except Exception as e:
-        print("Error:", e)
-        raise HTTPException(status_code=500, detail=f"str({e})")
-
-
-@app.post(
-    "/upsert",
-    response_model=UpsertResponse,
-)
-async def upsert(
-    request: UpsertRequest = Body(...),
-):
-    try:
-        ids = await datastore.upsert(request.documents)
-        return UpsertResponse(ids=ids)
-    except Exception as e:
-        print("Error:", e)
-        raise HTTPException(status_code=500, detail="Internal Service Error")
+def create_date_string(year, month, day):
+    return f"{year:04d}-{month:02d}-{day:02d}"
 
 
-@app.post(
-    "/query",
-    response_model=QueryResponse,
-)
-async def query_main(
-    request: QueryRequest = Body(...),
-):
-    try:
-        results = await datastore.query(
-            request.queries,
-        )
-        return QueryResponse(results=results)
-    except Exception as e:
-        print("Error:", e)
-        raise HTTPException(status_code=500, detail="Internal Service Error")
+@app.get("/games")
+def get_standings(day):
+    api_url_today = f"https://api.sportsdata.io/v3/nba/scores/json/GamesByDate/{day}?key=48a287166d5d4ecabd71c344439ee80c"
+    response = requests.get(api_url_today)
+    raw_scores = response.json()
+    return raw_scores
 
+@app.get("/year_standings")
+def get_standings(year):
+    api_url_today = f"https://api.sportsdata.io/v3/nba/scores/json/Standings/{year}?key=48a287166d5d4ecabd71c344439ee80c"
+    response = requests.get(api_url_today)
+    raw_standings = response.json()
+    return raw_standings
 
-@sub_app.post(
-    "/query",
-    response_model=QueryResponse,
-    # NOTE: We are describing the shape of the API endpoint input due to a current limitation in parsing arrays of objects from OpenAPI schemas. This will not be necessary in the future.
-    description="Accepts search query objects array each with query and optional filter. Break down complex questions into sub-questions. Refine results by criteria, e.g. time / source, don't do this often. Split queries if ResponseTooLargeError occurs.",
-)
-async def query(
-    request: QueryRequest = Body(...),
-):
-    try:
-        results = await datastore.query(
-            request.queries,
-        )
-        return QueryResponse(results=results)
-    except Exception as e:
-        print("Error:", e)
-        raise HTTPException(status_code=500, detail="Internal Service Error")
+@app.get("/allstar_roster")
+def get_allstar_roster(year, message):
+    api_url_today = f"https://api.sportsdata.io/v3/nba/stats/json/AllStars/{year}?key=48a287166d5d4ecabd71c344439ee80c"
+    response = requests.get(api_url_today)
+    raw_all_star_roster = response.json()
 
+    # Perform semantic search - get message vector embedding
+    #info_vector = get_embedding(message, engine="text-embedding-ada-002")
+    #info_vector = np.array(info_vector).reshape(1, -1)
+    #info_vector = info_vector.reshape(-1)
 
-@app.delete(
-    "/delete",
-    response_model=DeleteResponse,
-)
-async def delete(
-    request: DeleteRequest = Body(...),
-):
-    if not (request.ids or request.filter or request.delete_all):
-        raise HTTPException(
-            status_code=400,
-            detail="One of ids, filter, or delete_all is required",
-        )
-    try:
-        success = await datastore.delete(
-            ids=request.ids,
-            filter=request.filter,
-            delete_all=request.delete_all,
-        )
-        return DeleteResponse(success=success)
-    except Exception as e:
-        print("Error:", e)
-        raise HTTPException(status_code=500, detail="Internal Service Error")
+    # Convert ndarray to list
+    #info_vector_list = info_vector.tolist()
 
+    # Semantic Search within category
+    #search = index.query(
+    #  vector=info_vector_list,
+    #  filter={"Year": {"$eq": year}},
+    #  top_k=10,
+    #  include_metadata=True
+    #)  
+
+    #search_results = search["matches"]
+
+    # Combine JSON files
+    #combined_results = {}
+    #combined_results['all_star_roster'] = raw_all_star_roster
+    #combined_results['search_results'] = search_results
+      
+    return json.dumps(combined_results)
+    return raw_all_star_roster
+
+@app.get("/current_roster_list")
+def get_current_rosters(team_abv):
+    api_url_today = f"https://api.sportsdata.io/v3/nba/scores/json/PlayersBasic/{team_abv}?key=48a287166d5d4ecabd71c344439ee80c"
+    response = requests.get(api_url_today)
+    raw_roster = response.json()
+    return raw_roster
+
+@app.get("/player_stats_by_date")
+def get_Players_Stats_By_Date(day, player_name, player_id):
+    api_url_today = f"https://api.sportsdata.io/v3/nba/stats/json/PlayerGameStatsByDate/{day}?key=48a287166d5d4ecabd71c344439ee80c"
+    response = requests.get(api_url_today)
+    filtered_player_stats_by_date = response.json()
+    if player_id:
+      for player in filtered_player_stats_by_date:
+        if player["PlayerID"] == player_id:
+            # Create a dictionary with the desired player stats
+              filtered_player_stats = {
+                  "StatID": player["StatID"],
+                  "TeamID": player["TeamID"],
+                  "PlayerID": player["PlayerID"],
+                  "Season": player["Season"],
+                  "Name": player["Name"],
+                  "Team": player["Team"],
+                  "Position": player["Position"],
+                  "Started": player["Started"],
+                  "Updated": player["Updated"],
+                  "Games": player["Games"],
+                  "Minutes": player["Minutes"],
+                  "Seconds": player["Seconds"],
+                  "FieldGoalsMade": player["FieldGoalsMade"],
+                  "FieldGoalsAttempted": player["FieldGoalsAttempted"],
+                  "FieldGoalsPercentage": player["FieldGoalsPercentage"],
+                  "EffectiveFieldGoalsPercentage": player["EffectiveFieldGoalsPercentage"],
+                  "TwoPointersMade": player["TwoPointersMade"],
+                  "TwoPointersAttempted": player["TwoPointersAttempted"],
+                  "TwoPointersPercentage": player["TwoPointersPercentage"],
+                  "ThreePointersMade": player["ThreePointersMade"],
+                  "ThreePointersAttempted": player["ThreePointersAttempted"],
+                  "ThreePointersPercentage": player["ThreePointersPercentage"],
+                  "FreeThrowsMade": player["FreeThrowsMade"],
+                  "FreeThrowsAttempted": player["FreeThrowsAttempted"],
+                  "FreeThrowsPercentage": player["FreeThrowsPercentage"],
+                  "OffensiveRebounds": player["OffensiveRebounds"],
+                  "DefensiveRebounds": player["DefensiveRebounds"],
+                  "Rebounds": player["Rebounds"],
+                  "OffensiveReboundsPercentage": player["OffensiveReboundsPercentage"],
+                  "DefensiveReboundsPercentage": player["DefensiveReboundsPercentage"],
+                  "TotalReboundsPercentage": player["TotalReboundsPercentage"],
+                  "Assists": player["Assists"],
+                  "Steals": player["Steals"],
+                  "BlockedShots": player["BlockedShots"],
+                  "Turnovers": player["Turnovers"],
+                  "PersonalFouls": player["PersonalFouls"],
+                  "Points": player["Points"],
+                  "TrueShootingAttempts": player["TrueShootingAttempts"],
+                  "TrueShootingPercentage": player["TrueShootingPercentage"],
+                  "PlayerEfficiencyRating": player["PlayerEfficiencyRating"],
+                  "AssistsPercentage": player["AssistsPercentage"],
+                  "StealsPercentage": player["StealsPercentage"],
+                  "BlocksPercentage": player["BlocksPercentage"],
+                  "TurnOversPercentage": player["TurnOversPercentage"],
+                  "UsageRatePercentage": player["UsageRatePercentage"],
+                  "PlusMinus": player["PlusMinus"],
+                  "DoubleDoubles": player["DoubleDoubles"],
+                  "TripleDoubles": player["TripleDoubles"]
+              }
+    if player_name:
+      for player in filtered_player_stats_by_date:
+        if player["Name"] == player_name:      
+            filtered_player_stats = {
+                "StatID": player["StatID"],
+                "TeamID": player["TeamID"],
+                "PlayerID": player["PlayerID"],
+                "Season": player["Season"],
+                "Name": player["Name"],
+                "Team": player["Team"],
+                "Position": player["Position"],
+                "Started": player["Started"],
+                "Updated": player["Updated"],
+                "Games": player["Games"],
+                "Minutes": player["Minutes"],
+                "Seconds": player["Seconds"],
+                "FieldGoalsMade": player["FieldGoalsMade"],
+                "FieldGoalsAttempted": player["FieldGoalsAttempted"],
+                "FieldGoalsPercentage": player["FieldGoalsPercentage"],
+                "EffectiveFieldGoalsPercentage": player["EffectiveFieldGoalsPercentage"],
+                "TwoPointersMade": player["TwoPointersMade"],
+                "TwoPointersAttempted": player["TwoPointersAttempted"],
+                "TwoPointersPercentage": player["TwoPointersPercentage"],
+                "ThreePointersMade": player["ThreePointersMade"],
+                "ThreePointersAttempted": player["ThreePointersAttempted"],
+                "ThreePointersPercentage": player["ThreePointersPercentage"],
+                "FreeThrowsMade": player["FreeThrowsMade"],
+                "FreeThrowsAttempted": player["FreeThrowsAttempted"],
+                "FreeThrowsPercentage": player["FreeThrowsPercentage"],
+                "OffensiveRebounds": player["OffensiveRebounds"],
+                "DefensiveRebounds": player["DefensiveRebounds"],
+                "Rebounds": player["Rebounds"],
+                "OffensiveReboundsPercentage": player["OffensiveReboundsPercentage"],
+                "DefensiveReboundsPercentage": player["DefensiveReboundsPercentage"],
+                "TotalReboundsPercentage": player["TotalReboundsPercentage"],
+                "Assists": player["Assists"],
+                "Steals": player["Steals"],
+                "BlockedShots": player["BlockedShots"],
+                "Turnovers": player["Turnovers"],
+                "PersonalFouls": player["PersonalFouls"],
+                "Points": player["Points"],
+                "TrueShootingAttempts": player["TrueShootingAttempts"],
+                "TrueShootingPercentage": player["TrueShootingPercentage"],
+                "PlayerEfficiencyRating": player["PlayerEfficiencyRating"],
+                "AssistsPercentage": player["AssistsPercentage"],
+                "StealsPercentage": player["StealsPercentage"],
+                "BlocksPercentage": player["BlocksPercentage"],
+                "TurnOversPercentage": player["TurnOversPercentage"],
+                "UsageRatePercentage": player["UsageRatePercentage"],
+                "PlusMinus": player["PlusMinus"],
+                "DoubleDoubles": player["DoubleDoubles"],
+                "TripleDoubles": player["TripleDoubles"]
+            }
+    return filtered_player_stats
 
 @app.on_event("startup")
 async def startup():

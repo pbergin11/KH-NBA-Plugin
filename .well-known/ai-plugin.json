@@ -1,19 +1,18 @@
 {
-  "schema_version": "v1",
-  "name_for_model": "retrieval",
-  "name_for_human": "Retrieval Plugin",
-  "description_for_model": "Plugin for searching through the user's documents (such as files, emails, and more) to find answers to questions and retrieve relevant information. Use it whenever a user asks something that might be found in their personal information.",
-  "description_for_human": "Search through your documents.",
-  "auth": {
-    "type": "user_http",
-    "authorization_type": "bearer"
-  },
-  "api": {
-    "type": "openapi",
-    "url": "https://your-app-url.com/.well-known/openapi.yaml",
-    "has_user_authentication": false
-  },
-  "logo_url": "https://your-app-url.com/.well-known/logo.png",
-  "contact_email": "hello@contact.com", 
-  "legal_info_url": "http://example.com/legal-info"
+    "schema_version": "v1",
+    "name_for_human": "NBA Basketball Knowledge",
+    "name_for_model": "NBA",
+    "description_for_human": "Get the context behind NBA stats with access to up to date stats, news and opinions.",
+    "description_for_model": "Plugin knows NBA stats, news, opinions and analysis including all quantiative and qualitative data. It is able to retrieve all up to date NBA statistcis including opinions to provide the user with the context behind the data.",
+    "auth": {
+        "type": "none"
+    },
+    "api": {
+        "type": "openapi",
+        "url": "https://oyster-app-jlie2.ondigitalocean.app/.well-known/openai.yaml",
+        "is_user_authenticated": false
+    },
+    "logo_url": "https://oyster-app-jlie2.ondigitalocean.app/.well-known/logo.png",
+    "contact_email": "peterb@skiff.com",
+    "legal_info_url": "http://www.example.com/legal"
 }
