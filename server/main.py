@@ -50,6 +50,13 @@ sub_app = FastAPI(
 )
 app.mount("/sub", sub_app)
 
+index_name = 'kh-chat-app'
+pinecone.init(api_key="f0570753-9d5f-4be9-9533-1d912957ed25", environment="us-east1-gcp")
+
+# Connect to the index
+index = pinecone.Index(index_name)
+
+
 
 def filter_game_data(game):
     return {
