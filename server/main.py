@@ -79,8 +79,9 @@ def create_date_string(year, month, day):
 
 @app.get("/games")
 def get_games(year, month, day, message):
-    api_url_today = f"https://www.balldontlie.io/api/v1/games{date}"
-    response = requests.get(api_url_today)
+    date_str = create_date_string(year, month, day)
+    api_url = f"https://www.balldontlie.io/api/v1/games?date={date_str}"
+    response = requests.get(api_url)
     raw_scores = response.json()
 
     # Perform semantic search - get message vector embedding
