@@ -11,6 +11,8 @@ from openai.embeddings_utils import get_embedding
 import pinecone
 import requests
 import numpy as np
+import logging
+
 
 
 from models.api import (
@@ -56,6 +58,9 @@ pinecone.init(api_key="f0570753-9d5f-4be9-9533-1d912957ed25", environment="us-ea
 # Connect to the index
 index = pinecone.Index(index_name)
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
+
 
 
 def filter_game_data(game):
@@ -86,9 +91,13 @@ def create_date_string(year, month, day):
 
 @app.get("/games")
 def get_games(day, message):
+    logger.info(f"Day pre: {Day}")
     day = day["day"]
+    logger.info(f"Day post: {Day}")
     if day:
-        api_url = f"https://www.balldontlie.io/api/v1/games?date={day}"
+        api_url = f"https://api.sportsdata.io/v3/nba/scores/json/GamesByDate/{day}?key=48a287166d5d4ecabd71c344439ee80c"
+        logger.info(f"API-URL: {api_url}")
+
         response = requests.get(api_url)
         raw_scores = response.json()
     else:
@@ -109,10 +118,10 @@ def get_games(day, message):
         # Semantic Search within category
         search = index.query(
           vector=info_vector_list,
-          filter={"Year": {"$eq": year},
-                 "Month": {"$eq": month},
-                 "Day": {"$eq": day}},
-          top_k=30,
+          #filter={"Year": {"$eq": year},
+          #       "Month": {"$eq": month},
+          #       "Day": {"$eq": day}},
+          top_k=10,
           include_metadata=True
         )  
     
@@ -124,6 +133,10 @@ def get_games(day, message):
     combined_results = {}
     combined_results['game_data'] = raw_scores
     combined_results['search_results'] = search_results
+
+    logger.info(f"Day: {day}, Message: {message}")
+    logger.info(f"Raw_Scores: {raw_scores}"
+                f"Search_Results: {search_results}")
       
     return combined_results
 
@@ -136,7 +149,7 @@ def get_standings(year, message):
 
 @app.get("/allstar_roster")
 def get_allstar_roster(year: int, message: str):
-    api_url_today = f"https://www.balldontlie.io/api/v1/games?date={year}"
+    api_url_today = f"https://api.sportsdata.io/v3/nba/stats/json/AllStars/{year}?key=48a287166d5d4ecabd71c344439ee80c"
     response = requests.get(api_url_today)
     raw_all_star_roster = response.json()
 
