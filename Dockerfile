@@ -4,15 +4,11 @@ FROM python:3.10
 # Set working directory
 WORKDIR /code
 
-# Install poetry
-RUN pip install poetry
+# Copy requirements.txt file
+COPY ./requirements.txt /code/
 
-# Copy pyproject.toml and poetry.lock files
-COPY ./pyproject.toml ./poetry.lock* /code/
-
-# Install dependencies using poetry
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev --no-interaction --no-ansi
+# Install dependencies using pip
+RUN pip install -r requirements.txt
 
 # Copy the rest of the application code
 COPY . /code/

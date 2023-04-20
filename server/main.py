@@ -98,31 +98,30 @@ def get_allstar_roster(year, message):
     raw_all_star_roster = response.json()
 
     # Perform semantic search - get message vector embedding
-    #info_vector = get_embedding(message, engine="text-embedding-ada-002")
-    #info_vector = np.array(info_vector).reshape(1, -1)
-    #info_vector = info_vector.reshape(-1)
+    info_vector = get_embedding(message, engine="text-embedding-ada-002")
+    info_vector = np.array(info_vector).reshape(1, -1)
+    info_vector = info_vector.reshape(-1)
 
     # Convert ndarray to list
-    #info_vector_list = info_vector.tolist()
+    info_vector_list = info_vector.tolist()
 
     # Semantic Search within category
-    #search = index.query(
-    #  vector=info_vector_list,
-    #  filter={"Year": {"$eq": year}},
-    #  top_k=10,
-    #  include_metadata=True
-    #)  
+    search = index.query(
+      vector=info_vector_list,
+      filter={"Year": {"$eq": year}},
+      top_k=10,
+      include_metadata=True
+    )  
 
-    #search_results = search["matches"]
+    search_results = search["matches"]
 
     # Combine JSON files
-    #combined_results = {}
-    #combined_results['all_star_roster'] = raw_all_star_roster
-    #combined_results['search_results'] = search_results
+    combined_results = {}
+    combined_results['all_star_roster'] = raw_all_star_roster
+    combined_results['search_results'] = search_results
       
     return json.dumps(combined_results)
-    return raw_all_star_roster
-
+    
 @app.get("/current_roster_list")
 def get_current_rosters(team_abv):
     api_url_today = f"https://api.sportsdata.io/v3/nba/scores/json/PlayersBasic/{team_abv}?key=48a287166d5d4ecabd71c344439ee80c"
