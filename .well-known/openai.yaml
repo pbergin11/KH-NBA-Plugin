@@ -21,17 +21,17 @@ paths:
       - in: query
         name: year
         schema:
-            type: int
+            type: string
         description: Return the specific year associated with the date of information requested formatted as YYYY.
       - in: query
         name: month
         schema:
-            type: int
+            type: string
         description: Return the specific month associated with the date of information requested formatted as MM.
       - in: query
         name: day
         schema:
-            type: int
+            type: string
         description: Return the specific day associated with the date of information requested formatted as DD.
       - in: query
         name: message

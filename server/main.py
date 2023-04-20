@@ -79,7 +79,7 @@ def create_date_string(year, month, day):
 
 @app.get("/games")
 def get_games(year, month, day, message):
-    date_str = create_date_string(year, month, day)
+    date_str = f"{year:04d}-{month:02d}-{day:02d}"
     api_url = f"https://www.balldontlie.io/api/v1/games?date={date_str}"
     response = requests.get(api_url)
     raw_scores = response.json()
