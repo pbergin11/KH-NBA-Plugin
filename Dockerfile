@@ -1,24 +1,21 @@
-
-FROM python:3.10 as requirements-stage
-
-WORKDIR /tmp
-
-RUN pip install poetry
-
-COPY ./pyproject.toml ./poetry.lock* /tmp/
-
-
-RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
-
+# Use Python 3.10 image
 FROM python:3.10
 
+# Set working directory
 WORKDIR /code
 
-COPY --from=requirements-stage /tmp/requirements.txt /code/requirements.txt
+# Install poetry
+RUN pip install poetry
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+# Copy pyproject.toml and poetry.lock files
+COPY ./pyproject.toml ./poetry.lock* /code/
 
+# Install dependencies using poetry
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev --no-interaction --no-ansi
+
+# Copy the rest of the application code
 COPY . /code/
 
-# Heroku uses PORT, Azure App Services uses WEBSITES_PORT, Fly.io uses 8080 by default
+# Start the application using uvicorn
 CMD ["sh", "-c", "uvicorn server.main:app --host 0.0.0.0 --port ${PORT:-${WEBSITES_PORT:-8080}}"]
