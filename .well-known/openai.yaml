@@ -113,3 +113,27 @@ paths:
       responses:
         "200":
           description: OK
+components:
+  schemas:
+    TeamInfo:
+      type: object
+      properties:
+        teamId:
+          type: integer
+          description: The unique identifier for the team.
+        teamName:
+          type: string
+          description: The name of the team.
+        teamCity:
+          type: string
+          description: The city where the team is located.
+        teamAbbreviation:
+          type: string
+          description: The abbreviation of the team name.
+      required:
+        - teamId
+        - teamName
+        - teamCity
+        - teamAbbreviation
+
+      

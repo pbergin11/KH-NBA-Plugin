@@ -121,7 +121,7 @@ def get_standings(year, message):
     return raw_standings
 
 @app.get("/allstar_roster")
-def get_allstar_roster(year: int, messag str:):
+def get_allstar_roster(year: int, message: str):
     api_url_today = f"https://www.balldontlie.io/api/v1/games?date={year}"
     response = requests.get(api_url_today)
     raw_all_star_roster = response.json()
