@@ -19,15 +19,15 @@ paths:
       summary: Retrieves all the games for a specific date in the NBA and their associated scores and results. To get stats about a specific player in a game, use the getPlayersStatsByDate operationID.
       parameters:
       - in: query
-        name: date
+        name: day
         schema:
             type: string
-        description: Return the specific year associated with the date of information requested formatted as YYYY.
+        description: Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
       - in: query
         name: message
         schema:
             type: string
-        description: Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
+        description: Required. Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
       responses:
         "200":
           description: OK  
@@ -40,12 +40,12 @@ paths:
         name: year
         schema:
             type: string
-        description: Filter by seasons. Seasons are represented by the year they began. For example, 2018 represents season 2018-2019.
+        description: Required. Filter by seasons. Seasons are represented by the year they began. For example, 2018 represents season 2018-2019.
       - in: query
         name: message
         schema:
             type: string
-        description: Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
+        description: Required. Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
       responses:
         "200":
           description: OK  
@@ -58,12 +58,12 @@ paths:
         name: year
         schema:
             type: string
-        description: Filter by seasons. Seasons are represented by the year they began. For example, 2018 represents season 2018-2019.
+        description: Required. Filter by seasons. Seasons are represented by the year they began. For example, 2018 represents season 2018-2019.
       - in: query
         name: message
         schema:
             type: string
-        description: Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
+        description: Required. Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
       responses:
         "200":
           description: OK
@@ -76,12 +76,12 @@ paths:
         name: team_abv
         schema:
             type: string
-        description: Return the team abreviation for the specific NBA team. For example the brooklyn nets are BKN, the Toronto Raptors are TOR.
+        description: Required. Return the team abreviation for the specific NBA team. For example the brooklyn nets are BKN, the Toronto Raptors are TOR.
       - in: query
         name: message
         schema:
             type: string
-        description: Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
+        description: Required. Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
       responses:
         "200":
           description: OK
@@ -94,22 +94,22 @@ paths:
         name: date
         schema:
             type: string
-        description: Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
+        description: Required. Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
       - in: query
         name: player_name
         schema:
             type: string
-        description: The full name of the player, no short forms or nick names, only full names. For example Steph Curry must be Stephen Curry.
+        description: Required. The full name of the player, no short forms or nick names, only full names. For example Steph Curry must be Stephen Curry.
       - in: query
         name: player_id
         schema:
             type: string
-        description: The player ID about the specific player in the request information.
+        description: Required. The player ID about the specific player in the request information.
       - in: query
         name: message
         schema:
             type: string
-        description: Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
+        description: Required. Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
       responses:
         "200":
           description: OK
