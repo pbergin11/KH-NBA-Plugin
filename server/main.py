@@ -78,11 +78,14 @@ def create_date_string(year, month, day):
 
 
 @app.get("/games")
-def get_games(year, month, day, message):
-    date_str = f"{year:04d}-{month:02d}-{day:02d}"
-    api_url = f"https://www.balldontlie.io/api/v1/games?date={date_str}"
-    response = requests.get(api_url)
-    raw_scores = response.json()
+def get_games(date, message):
+    #api_url = f"https://www.balldontlie.io/api/v1/games?date={date}"
+    #response = requests.get(api_url)
+    #raw_scores = response.json()
+
+  
+    year, month, day = date.split('-')
+
 
     # Perform semantic search - get message vector embedding
     info_vector = get_embedding(message, engine="text-embedding-ada-002")
@@ -108,7 +111,7 @@ def get_games(year, month, day, message):
     combined_results['game_data'] = raw_scores
     combined_results['search_results'] = search_results
       
-    return json.dumps(combined_results)
+    return search_results
 
 @app.get("/year_standings")
 def get_standings(year, message):
@@ -119,7 +122,7 @@ def get_standings(year, message):
 
 @app.get("/allstar_roster")
 def get_allstar_roster(year, message):
-    api_url_today = f"https://api.sportsdata.io/v3/nba/stats/json/AllStars/{year}?key=48a287166d5d4ecabd71c344439ee80c"
+    api_url_today = f"https://www.balldontlie.io/api/v1/games?date={year}"
     response = requests.get(api_url_today)
     raw_all_star_roster = response.json()
 

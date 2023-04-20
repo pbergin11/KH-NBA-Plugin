@@ -19,20 +19,10 @@ paths:
       summary: Retrieves all the games for a specific date in the NBA and their associated scores and results. To get stats about a specific player in a game, use the getPlayersStatsByDate operationID.
       parameters:
       - in: query
-        name: year
+        name: date
         schema:
             type: string
         description: Return the specific year associated with the date of information requested formatted as YYYY.
-      - in: query
-        name: month
-        schema:
-            type: string
-        description: Return the specific month associated with the date of information requested formatted as MM.
-      - in: query
-        name: day
-        schema:
-            type: string
-        description: Return the specific day associated with the date of information requested formatted as DD.
       - in: query
         name: message
         schema:
