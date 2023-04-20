@@ -78,7 +78,7 @@ def create_date_string(year, month, day):
 
 
 @app.get("/games")
-def get_standings(day):
+def get_games(date):
     api_url_today = f"https://api.sportsdata.io/v3/nba/scores/json/GamesByDate/{day}?key=48a287166d5d4ecabd71c344439ee80c"
     response = requests.get(api_url_today)
     raw_scores = response.json()

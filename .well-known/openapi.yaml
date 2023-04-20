@@ -16,10 +16,10 @@ paths:
   /games:
     get:
       operationId: getGames
-      summary: Retrieves the games for a specific date in the NBA and their associated scores and results. To get stats about a specific player in a game, use the getPlayersStatsByDate operationID.
+      summary: Retrieves all the games for a specific date in the NBA and their associated scores and results. To get stats about a specific player in a game, use the getPlayersStatsByDate operationID.
       parameters:
       - in: query
-        name: day
+        name: date
         schema:
             type: string
         description: Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
