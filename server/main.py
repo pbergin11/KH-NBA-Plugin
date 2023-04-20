@@ -78,14 +78,14 @@ def create_date_string(year, month, day):
 
 
 @app.get("/games")
-def get_games(date):
-    api_url_today = f"https://api.sportsdata.io/v3/nba/scores/json/GamesByDate/{day}?key=48a287166d5d4ecabd71c344439ee80c"
+def get_games(date, message):
+    api_url_today = f"https://api.sportsdata.io/v3/nba/scores/json/GamesByDate/{date}?key=48a287166d5d4ecabd71c344439ee80c"
     response = requests.get(api_url_today)
     raw_scores = response.json()
     return raw_scores
 
 @app.get("/year_standings")
-def get_standings(year):
+def get_standings(year, message):
     api_url_today = f"https://api.sportsdata.io/v3/nba/scores/json/Standings/{year}?key=48a287166d5d4ecabd71c344439ee80c"
     response = requests.get(api_url_today)
     raw_standings = response.json()
@@ -123,14 +123,14 @@ def get_allstar_roster(year, message):
     return json.dumps(combined_results)
     
 @app.get("/current_roster_list")
-def get_current_rosters(team_abv):
+def get_current_rosters(team_abv, message):
     api_url_today = f"https://api.sportsdata.io/v3/nba/scores/json/PlayersBasic/{team_abv}?key=48a287166d5d4ecabd71c344439ee80c"
     response = requests.get(api_url_today)
     raw_roster = response.json()
     return raw_roster
 
 @app.get("/player_stats_by_date")
-def get_Players_Stats_By_Date(day, player_name, player_id):
+def get_Players_Stats_By_Date(day, player_name, player_id, message):
     api_url_today = f"https://api.sportsdata.io/v3/nba/stats/json/PlayerGameStatsByDate/{day}?key=48a287166d5d4ecabd71c344439ee80c"
     response = requests.get(api_url_today)
     filtered_player_stats_by_date = response.json()

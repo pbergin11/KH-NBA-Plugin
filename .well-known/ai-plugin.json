@@ -9,10 +9,10 @@
     },
     "api": {
         "type": "openapi",
-        "url": "https://oyster-app-jlie2.ondigitalocean.app/.well-known/openai.yaml",
+        "url": "https://octopus-app-4yrlx.ondigitalocean.app/.well-known/openai.yaml",
         "is_user_authenticated": false
     },
-    "logo_url": "https://oyster-app-jlie2.ondigitalocean.app/.well-known/logo.png",
+    "logo_url": "https://octopus-app-4yrlx.ondigitalocean.app/.well-known/logo.png",
     "contact_email": "peterb@skiff.com",
     "legal_info_url": "http://www.example.com/legal"
 }

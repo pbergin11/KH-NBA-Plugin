@@ -4,7 +4,7 @@ info:
   description: This API will get current and historical stats for NBA players and games.
   version: 'v1'
 servers:
-  - url: https://oyster-app-jlie2.ondigitalocean.app
+  - url: https://octopus-app-4yrlx.ondigitalocean.app/
 paths:
   /team_ID_by_Name:
     get:
@@ -23,6 +23,11 @@ paths:
         schema:
             type: string
         description: Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
+      - in: query
+        name: message
+        schema:
+            type: string
+        description: Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
       responses:
         "200":
           description: OK  
@@ -36,6 +41,11 @@ paths:
         schema:
             type: string
         description: Filter by seasons. Seasons are represented by the year they began. For example, 2018 represents season 2018-2019.
+      - in: query
+        name: message
+        schema:
+            type: string
+        description: Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
       responses:
         "200":
           description: OK  
@@ -67,6 +77,11 @@ paths:
         schema:
             type: string
         description: Return the team abreviation for the specific NBA team. For example the brooklyn nets are BKN, the Toronto Raptors are TOR.
+      - in: query
+        name: message
+        schema:
+            type: string
+        description: Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
       responses:
         "200":
           description: OK
@@ -90,6 +105,11 @@ paths:
         schema:
             type: string
         description: The player ID about the specific player in the request information.
+      - in: query
+        name: message
+        schema:
+            type: string
+        description: Pass the users message to the API, this is used to vectorize the message and use sematic search to retrieve information.
       responses:
         "200":
           description: OK
