@@ -78,40 +78,46 @@ def create_date_string(year, month, day):
 
 
 @app.get("/games")
-def get_games(day: int, message: str):
-    api_url = f"https://www.balldontlie.io/api/v1/games?date={day}"
-    response = requests.get(api_url)
-    raw_scores = response.json()
+def get_games(day, message):
+    if day:
+        api_url = f"https://www.balldontlie.io/api/v1/games?date={day}"
+        response = requests.get(api_url)
+        raw_scores = response.json()
+    else:
+        raw_scores = "No scores availible for that day"
 
   
     year, month, day = date.split('-')
 
-
-    # Perform semantic search - get message vector embedding
-    info_vector = get_embedding(message, engine="text-embedding-ada-002")
-    info_vector = np.array(info_vector).reshape(1, -1)
-    info_vector = info_vector.reshape(-1)
-
-    # Convert ndarray to list
-    info_vector_list = info_vector.tolist()
-
-    # Semantic Search within category
-    search = index.query(
-      vector=info_vector_list,
-      filter={"Year": {"$eq": year},
-             "Month": {"$eq": month},
-             "Day": {"$eq": day}},
-      top_k=30,
-      include_metadata=True
-    )  
-
-    search_results = search["matches"]
+    if message:
+        # Perform semantic search - get message vector embedding
+        info_vector = get_embedding(message, engine="text-embedding-ada-002")
+        info_vector = np.array(info_vector).reshape(1, -1)
+        info_vector = info_vector.reshape(-1)
+    
+        # Convert ndarray to list
+        info_vector_list = info_vector.tolist()
+    
+        # Semantic Search within category
+        search = index.query(
+          vector=info_vector_list,
+          filter={"Year": {"$eq": year},
+                 "Month": {"$eq": month},
+                 "Day": {"$eq": day}},
+          top_k=30,
+          include_metadata=True
+        )  
+    
+        search_results = search["matches"]
+    else:
+      search = "No vector results found"
+      
     # Combine JSON files
     combined_results = {}
     combined_results['game_data'] = raw_scores
-    combined_results['search_results'] = search
+    combined_results['search_results'] = search_results
       
-    return search
+    return combined_results
 
 @app.get("/year_standings")
 def get_standings(year, message):

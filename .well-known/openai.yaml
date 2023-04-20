@@ -130,10 +130,14 @@ components:
         teamAbbreviation:
           type: string
           description: The abbreviation of the team name.
+        message:
+          type: string
+          description: The users message.
       required:
         - teamId
         - teamName
         - teamCity
         - teamAbbreviation
+        - message
 
       
