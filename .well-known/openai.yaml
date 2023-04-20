@@ -19,10 +19,20 @@ paths:
       summary: Retrieves all the games for a specific date in the NBA and their associated scores and results. To get stats about a specific player in a game, use the getPlayersStatsByDate operationID.
       parameters:
       - in: query
-        name: date
+        name: year
         schema:
             type: string
-        description: Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
+        description: Return the specific year associated with the date of information requested formatted as YYYY.
+      - in: query
+        name: month
+        schema:
+            type: string
+        description: Return the specific month associated with the date of information requested formatted as MM.
+      - in: query
+        name: day
+        schema:
+            type: string
+        description: Return the specific day associated with the date of information requested formatted as DD.
       - in: query
         name: message
         schema:
@@ -91,7 +101,7 @@ paths:
       summary: Use this tool if the user asks for a players specific stats on a specific date. It gets stats of a specific player in a game. If no player is returned, assume the player did not play in a game that day. Use the getGames operationID for specific games as a whole.
       parameters:
       - in: query
-        name: day
+        name: date
         schema:
             type: string
         description: Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.

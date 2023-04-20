@@ -78,11 +78,36 @@ def create_date_string(year, month, day):
 
 
 @app.get("/games")
-def get_games(date, message):
-    api_url_today = f"https://api.sportsdata.io/v3/nba/scores/json/GamesByDate/{date}?key=48a287166d5d4ecabd71c344439ee80c"
+def get_games(year, month, day, message):
+    api_url_today = f"https://www.balldontlie.io/api/v1/games{date}"
     response = requests.get(api_url_today)
     raw_scores = response.json()
-    return raw_scores
+
+    # Perform semantic search - get message vector embedding
+    info_vector = get_embedding(message, engine="text-embedding-ada-002")
+    info_vector = np.array(info_vector).reshape(1, -1)
+    info_vector = info_vector.reshape(-1)
+
+    # Convert ndarray to list
+    info_vector_list = info_vector.tolist()
+
+    # Semantic Search within category
+    search = index.query(
+      vector=info_vector_list,
+      filter={"Year": {"$eq": year},
+             "Month": {"$eq": month},
+             "Day": {"$eq": day}},
+      top_k=30,
+      include_metadata=True
+    )  
+
+    search_results = search["matches"]
+    # Combine JSON files
+    combined_results = {}
+    combined_results['game_data'] = raw_scores
+    combined_results['search_results'] = search_results
+      
+    return json.dumps(combined_results)
 
 @app.get("/year_standings")
 def get_standings(year, message):
@@ -130,8 +155,8 @@ def get_current_rosters(team_abv, message):
     return raw_roster
 
 @app.get("/player_stats_by_date")
-def get_Players_Stats_By_Date(day, player_name, player_id, message):
-    api_url_today = f"https://api.sportsdata.io/v3/nba/stats/json/PlayerGameStatsByDate/{day}?key=48a287166d5d4ecabd71c344439ee80c"
+def get_Players_Stats_By_Date(date, player_name, player_id, message):
+    api_url_today = f"https://api.sportsdata.io/v3/nba/stats/json/PlayerGameStatsByDate/{date}?key=48a287166d5d4ecabd71c344439ee80c"
     response = requests.get(api_url_today)
     filtered_player_stats_by_date = response.json()
     if player_id:
