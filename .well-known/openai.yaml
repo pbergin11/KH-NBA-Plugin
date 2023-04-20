@@ -21,7 +21,7 @@ paths:
       - in: query
         name: day
         schema:
-            type: integer
+            type: string
         description: Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
       - in: query
         name: message
@@ -93,7 +93,7 @@ paths:
       - in: query
         name: date
         schema:
-            type: integer
+            type: string
         description: Required. Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
       - in: query
         name: player_name

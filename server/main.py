@@ -79,6 +79,7 @@ def create_date_string(year, month, day):
 
 @app.get("/games")
 def get_games(day, message):
+    day = day["day"]
     if day:
         api_url = f"https://www.balldontlie.io/api/v1/games?date={day}"
         response = requests.get(api_url)
