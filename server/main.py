@@ -78,7 +78,7 @@ def create_date_string(year, month, day):
 
 
 @app.get("/games")
-def get_games(day, message):
+def get_games(day: int, message: str):
     api_url = f"https://www.balldontlie.io/api/v1/games?date={day}"
     response = requests.get(api_url)
     raw_scores = response.json()
@@ -109,9 +109,9 @@ def get_games(day, message):
     # Combine JSON files
     combined_results = {}
     combined_results['game_data'] = raw_scores
-    combined_results['search_results'] = search_results
+    combined_results['search_results'] = search
       
-    return combined_results
+    return search
 
 @app.get("/year_standings")
 def get_standings(year, message):
@@ -121,7 +121,7 @@ def get_standings(year, message):
     return raw_standings
 
 @app.get("/allstar_roster")
-def get_allstar_roster(year, message):
+def get_allstar_roster(year: int, messag str:):
     api_url_today = f"https://www.balldontlie.io/api/v1/games?date={year}"
     response = requests.get(api_url_today)
     raw_all_star_roster = response.json()

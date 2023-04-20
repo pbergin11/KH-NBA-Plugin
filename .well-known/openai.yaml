@@ -21,7 +21,7 @@ paths:
       - in: query
         name: day
         schema:
-            type: string
+            type: integer
         description: Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
       - in: query
         name: message
@@ -39,7 +39,7 @@ paths:
       - in: query
         name: year
         schema:
-            type: string
+            type: integer
         description: Required. Filter by seasons. Seasons are represented by the year they began. For example, 2018 represents season 2018-2019.
       - in: query
         name: message
@@ -57,7 +57,7 @@ paths:
       - in: query
         name: year
         schema:
-            type: string
+            type: integer
         description: Required. Filter by seasons. Seasons are represented by the year they began. For example, 2018 represents season 2018-2019.
       - in: query
         name: message
@@ -93,7 +93,7 @@ paths:
       - in: query
         name: date
         schema:
-            type: string
+            type: integer
         description: Required. Filter by day. Provide the day required to find the game information, must be formatted as YYYY-MM-DD.
       - in: query
         name: player_name
