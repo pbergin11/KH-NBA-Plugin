@@ -25,6 +25,7 @@ from models.api import (
 )
 from datastore.factory import get_datastore
 from services.file import get_document_from_file
+from services.openai import get_embeddings
 
 from models.models import DocumentMetadata, Source
 
@@ -44,10 +45,10 @@ app.mount("/.well-known", StaticFiles(directory=".well-known"), name="static")
 
 # Create a sub-application, in order to access just the query endpoint in an OpenAPI schema, found at http://0.0.0.0:8000/sub/openapi.json when the app is running locally
 sub_app = FastAPI(
-    title="Retrieval Plugin API",
-    description="A retrieval API for querying and filtering documents based on natural language queries and metadata",
+    title="NBA Basketball Knowledge",
+    description="Get the context behind NBA stats with access to up to date stats, news and opinions.",
     version="1.0.0",
-    servers=[{"url": "https://your-app-url.com"}],
+    servers=[{"url": "https://octopus-app-4yrlx.ondigitalocean.app/"}],
     dependencies=[Depends(validate_token)],
 )
 app.mount("/sub", sub_app)
@@ -112,13 +113,8 @@ def get_games(day, message):
     year, month, day = date.split('-')
 
     if message:
-        # Perform semantic search - get message vector embedding
-        info_vector = get_embedding(message, engine="text-embedding-ada-002")
-        info_vector = np.array(info_vector).reshape(1, -1)
-        info_vector = info_vector.reshape(-1)
-    
         # Convert ndarray to list
-        info_vector_list = info_vector.tolist()
+        info_vector_list = await get_embeddings(message)
     
         # Semantic Search within category
         search = index.query(
