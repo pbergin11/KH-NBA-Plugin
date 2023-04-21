@@ -58,7 +58,12 @@ pinecone.init(api_key="f0570753-9d5f-4be9-9533-1d912957ed25", environment="us-ea
 # Connect to the index
 index = pinecone.Index(index_name)
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logging.basicConfig(
+    filename="app.log",
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+
 logger = logging.getLogger(__name__)
 
 
