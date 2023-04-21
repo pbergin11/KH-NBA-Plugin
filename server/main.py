@@ -96,7 +96,7 @@ def create_date_string(year, month, day):
 
 
 @app.get("/games")
-def get_games(day, message):
+async def get_games(day, message):
     logger.info(f"Day pre: {Day}")
     day = day["day"]
     logger.info(f"Day post: {Day}")
